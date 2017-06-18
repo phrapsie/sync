@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div id='speech'>
+
+        <h1 class='speech0h1'> Sync machine </h1>
+        <small> Pick your voice: </small>
+        <div class="bloc"></div>
+        <select name="voice" placeholder='choose from available options' class="voice">
+  </select>
+
+        <small>fill form below...</small>
+        <textarea placeholder='text to play...' cols='2' rows='4' name="text" class="voice"></textarea>
+
+        <button class="voice">
+    play now!
+  </button>
+        <!--<button class="voice">
+    hold on.
+  </button>-->
+
+        <small class='smallpadding'>Set...</small>
+
+        <br /><br /><br />
+        <label for="pitch"> 
+    <small>...pitch:</small> 
+  </label>
+        <input type="range" id='pitch' name='pitch' step='0.1' min='0' max='3' />
+
+        <br />
+        <label for="rate"> 
+    <small>...rate:</small> 
+  </label>
+        <input type="range" id='rate' name='rate' step='0.1' min='0' max='2' />
+
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn"
+        crossorigin="anonymous"></script>
+    <script>
+        function init() {
+
+            let msg = new SpeechSynthesisUtterance(),
+                voices = [];
+
+            msg.text = new String();
+
+            const $voice = $('[name="voice"]'),
+                $text = $("[name='text']");
+            //$btnstop = $('button:contains("hold")'),
+            $btnplay = $('button:contains("play")'),
+                $options = $(":input:not(select, button)"),
+                sync = window.speechSynthesis;
+
+            //pause btn
+
+            /*function pause(){
+              
+              sync.pause();
+              
+            }
+  
+            $btnstop.on('click', pause);*/
+
+            //opting
+
+            function updateSetting() {
+
+                msg[this.name] = this.value;
+
+                start0over();
+
+            }
+
+            $options.change(updateSetting);
+
+            //voice choosed
+
+            function start0over(again = true) {
+                sync.cancel();
+
+                //$text.val() ?  start0over == true ? sync.speak(msg) : console.log() : sync.speak(new SpeechSynthesisUtterance('you did not type anything in'));
+
+                again == true ? sync.speak(msg) : console.log()
+
+            }
+
+            function changevoice() {
+
+                msg.voice = voices.find(vois => vois.name === this.value);
+
+                start0over();
+
+            }
+
+            $voice.on('change', changevoice);
+
+            //btn trigger
+
+            function play() {
+                //console.log(sync.paused);
+                /*if(sync.paused){
+                  sync.resume();
+                  msg.text = $text.val();
+                  sync.speak(msg);
+                  return;
+                }*/
+
+                console.log(msg.voice);
+
+                $text.val() ? start0over() : failure();
+
+                function failure() {
+
+                    sync.cancel();
+
+                    let msg = new SpeechSynthesisUtterance(`Pole tekstowe jest puste`);
+
+                    sync.speak(msg);
+
+                }
+
+            }
+
+            $btnplay.on('click', play);
+
+            //voices insertion
+
+            $(sync).on('voiceschanged',
+                function () {
+                    voices = this.getVoices();
+
+                    $.each(voices, (i, voice) => {
+
+                        let text = `${voice.lang} ${voice.name}`;
+
+                        if (text.length > 20) text = text.slice(0, 19) + '...';
+
+                        $voice
+                            .append(
+                                `<option value='${voice.name}'> ${text} </option>`);
+                    });
+
+                });
+
+        }
+
+        $(document).ready(init);
+    </script>
+</body>
+
+</html>
